@@ -1,5 +1,4 @@
 global _start
-
 section .data
 
 ; 10 (0xA em hexadecimal) corresponde ao caractere newline (\n) na tabela ascii
@@ -8,6 +7,8 @@ newline: db 10
 message: db 'Qual seu nome? ', 0
 
 hello: db 'Hello, ', 0
+
+number: db '2025', 0
 
 section .bss
 
@@ -231,27 +232,47 @@ read:
 
     ret
 
-; rdi recebe a base
-; rsi recebe o expoente
-; realiza a operação base^expoente
-; onde a base e o expoente são inteiros sem sinal
-pow:
-    mov rax, 1
+; rdi recebe uma string terminada em nulo
+; faz parse de uma string para um inteiro sem sinal
+parse_uint:
+    call strlen
 
-    test rsi, rsi
+    push rax
+
+    mov rcx, rax
+    xor rax, rax
+    
+    ; dacimal = base 10
+    mov rdx, 10
+
+; vamos iterar do primeiro byte até o ultimo na string
+; somando o número em decimal e multiplicando por 10 quando necessário
+; por exemplo:
+;   '2025\0' rcx = 4 rdi; = endereço do char '2'
+;   
+;   primeira iteração:
+;       rsi = '2' (código ascii é 0x32 ou 50)
+;       subtraimos '0' (código ascii é 0x30 ou 48)
+;       com isso conseguimos seu número em decimal
+;
+;   lógica com números decimais:
+;   2025 = (((((((0 *10) + 2) * 10) + 0) * 10) + 2) * 10) + 5
+.next_number:
+    test rcx, rcx
     jz .end
 
-    mov rcx, rsi
+    movzx rsi, byte [rdi]
+    sub rsi, '0'
 
-.loop:
-    mul rdi
+    imul rax, rdx
+    add rax, rsi
 
+    inc rdi
     dec rcx
-
-    test rcx, rcx
-    jnz .loop
+    jmp .next_number
 
 .end:
+    pop rdx
     ret
 
 
