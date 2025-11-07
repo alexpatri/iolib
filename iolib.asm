@@ -8,7 +8,7 @@ message: db 'Qual seu nome? ', 0
 
 hello: db 'Hello, ', 0
 
-number: db '2025', 0
+number: db '-2025', 0
 
 section .bss
 
@@ -119,7 +119,7 @@ print_uint:
     ; ou seja: (rdx:rax) / rbx
     div rbx
 
-    add dl, 48
+    add dl, '0'
 
     dec rsi
     ; TODO: estudar partes dos registradores
@@ -245,8 +245,8 @@ parse_uint:
     ; dacimal = base 10
     mov rdx, 10
 
-; vamos iterar do primeiro byte até o ultimo na string
-; somando o número em decimal e multiplicando por 10 quando necessário
+; itera do primeiro byte até o ultimo na string
+; soma o número em decimal e multiplicando por 10 quando necessário
 ; por exemplo:
 ;   '2025\0' rcx = 4 rdi; = endereço do char '2'
 ;   
@@ -255,7 +255,7 @@ parse_uint:
 ;       subtraimos '0' (código ascii é 0x30 ou 48)
 ;       com isso conseguimos seu número em decimal
 ;
-;   lógica com números decimais:
+;   lógica:
 ;   2025 = (((((((0 *10) + 2) * 10) + 0) * 10) + 2) * 10) + 5
 .next_number:
     test rcx, rcx
@@ -275,6 +275,17 @@ parse_uint:
     pop rdx
     ret
 
+; rdi recebe um string
+; faz o parse de uma string para um inteiro com sinal
+parse_int:
+    cmp byte [rdi], '-'
+    jne parse_uint
+    
+    inc rdi
+    call parse_uint
+
+    neg rax
+    ret
 
 _start:
     ; mov rdi, 0xFFFFFFFFFFFFFFFF
@@ -307,7 +318,6 @@ _start:
     
     mov rdi, '!'
     call print_char
-
     call print_newline
 
 .end:
