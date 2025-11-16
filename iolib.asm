@@ -16,6 +16,8 @@ section .bss
 ; reservando um buufer de 16 bytes
 name: resb 16
 
+name2: resb 16
+
 section .text
 
 ; rdi recebe o código de saída
@@ -315,6 +317,39 @@ string_equals:
 .end:
     ret
 
+; rdi recebe o ponteiro para uma string
+; rsi recebe o ponteiro para um buffer onde a string será compiada
+; rdx recebe o tamanho do buffer
+; caso a string caiba no buffer o endereço de destino será devolvido
+; caso a string não caiba no buffer será devolvido zero
+string_copy:
+    push rdi
+    call strlen
+    pop rdi
+
+    inc rax
+    cmp rdx, rax
+    jl .less
+
+    mov rax, rsi
+
+.next_char:
+    mov bl, [rdi]
+    mov [rsi], bl
+
+    cmp bl, 0 
+    je .end
+
+    inc rsi
+    inc rdi
+    jmp .next_char
+
+.less:
+    xor rax, rax
+
+.end:
+    ret
+
 _start:
     ; mov rdi, 0xFFFFFFFFFFFFFFFF
     ; call print_uint
@@ -347,7 +382,6 @@ _start:
     mov rdi, '!'
     call print_char
     call print_newline
-
 .end:
     xor rdi, rdi
     jmp exit
