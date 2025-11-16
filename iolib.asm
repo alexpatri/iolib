@@ -1,22 +1,15 @@
 global _start
+
 section .data
 
-; 10 (0xA em hexadecimal) corresponde ao caractere newline (\n) na tabela ascii
-newline: db 10
-
 message: db 'Qual seu nome? ', 0
-
 hello: db 'Hello, ', 0
-
-number: db '-2025', 0
 
 section .bss
 
 ; resb = reserve byte
 ; reservando um buufer de 16 bytes
 name: resb 16
-
-name2: resb 16
 
 section .text
 
@@ -79,13 +72,9 @@ print_char:
 
 ; imprime o caractere newline
 print_newline:
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, newline
-    mov rdx, 1
-    syscall
-
-    ret
+    ; 10 (0xA em hexadecimal) corresponde ao caractere newline (\n) na tabela ascii
+    mov rdi, 10
+    jmp print_char
 
 ; rdi recebe o unsigned integer (inteteiro sem sinal) de 8 bytes
 ; é feito uma alocação de 32 bytes na pilha (mais que o necessário por conta do alinhamento da pilha)
@@ -323,9 +312,7 @@ string_equals:
 ; caso a string caiba no buffer o endereço de destino será devolvido
 ; caso a string não caiba no buffer será devolvido zero
 string_copy:
-    push rdi
     call strlen
-    pop rdi
 
     inc rax
     cmp rdx, rax
