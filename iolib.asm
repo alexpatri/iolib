@@ -9,6 +9,8 @@ global read
 global read_char
 global parse_uint
 global parse_int
+global string_equals
+global string_copy
 global exit
 
 ; rdi recebe o código de saída
